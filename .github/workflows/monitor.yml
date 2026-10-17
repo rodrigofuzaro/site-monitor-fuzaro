@@ -1,0 +1,32 @@
+name: monitor
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      url_teste:
+        description: 'URL extra para testar o alerta (opcional)'
+        required: false
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+jobs:
+  fuzaro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TITULO: Fuzaro FORA DO AR
+      URLS: >-
+        https://portal.clinicafuzaro.com.br/
+        https://wa2.clinicafuzaro.com.br/webhook/meta
+        https://wa3.clinicafuzaro.com.br/health
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      NTFY_URL: ${{ secrets.NTFY_URL }}
+      NTFY_TOKEN: ${{ secrets.NTFY_TOKEN }}
+      URL_TESTE: ${{ inputs.url_teste }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash .github/monitor.sh
